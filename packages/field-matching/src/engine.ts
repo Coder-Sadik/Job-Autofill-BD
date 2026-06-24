@@ -5,16 +5,29 @@ import * as stringSimilarity from 'string-similarity';
 export interface MatchResult {
   fieldKey: string;
   confidence: number;
-  strategy: 'exact' | 'dictionary' | 'ai' | 'unknown';
+  strategy: 'template' | 'exact' | 'dictionary' | 'ai' | 'unknown';
 }
 
 export class FieldMatchingEngine {
   
-  public static matchField(metadata: FieldMetadata): MatchResult {
+  public static matchField(
+    metadata: FieldMetadata, 
+    templateMappings?: Record<string, string>
+  ): MatchResult {
     // 1. Normalize the input texts
     const normalizedName = this.normalize(metadata.name);
     const normalizedLabel = this.normalize(metadata.label);
     const normalizedPlaceholder = this.normalize(metadata.placeholder);
+
+    // 2. Check Template Mappings first (Highest Priority)
+    if (templateMappings) {
+      if (templateMappings[metadata.name]) {
+        return { fieldKey: templateMappings[metadata.name], confidence: 1.0, strategy: 'template' };
+      }
+      if (templateMappings[metadata.id]) {
+        return { fieldKey: templateMappings[metadata.id], confidence: 1.0, strategy: 'template' };
+      }
+    }
 
     const candidates = [normalizedLabel, normalizedName, normalizedPlaceholder].filter(c => c.length > 0);
 
