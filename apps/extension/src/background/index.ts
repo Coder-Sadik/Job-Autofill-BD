@@ -2,10 +2,14 @@ import { createClient } from '@supabase/supabase-js'
 
 // Simple mock for now. In reality, we'd use environment variables injected via Vite.
 // Or we fetch from Chrome Storage if the user configures it.
-const SUPABASE_URL = 'https://YOUR_SUPABASE_URL.supabase.co'
-const SUPABASE_KEY = 'YOUR_SUPABASE_ANON_KEY'
+const SUPABASE_URL = 'https://abcdefghijklmnopqr.supabase.co'
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.dummy_key'
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
+  auth: {
+    persistSession: false // Critical for Manifest V3 Service Workers (no localStorage)
+  }
+})
 console.log('Supabase client initialized:', !!supabase)
 
 // Store the active session and profiles in memory/storage
