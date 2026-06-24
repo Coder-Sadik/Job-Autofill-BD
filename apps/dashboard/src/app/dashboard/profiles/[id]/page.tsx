@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { updatePersonalInfo } from '@/app/actions/personal-info'
+import { uploadDocument, deleteDocument } from '@/app/actions/documents'
 
 export default async function ProfileEditPage({ params }: { params: { id: string } }) {
   const supabase = await createClient()
@@ -31,6 +32,13 @@ export default async function ProfileEditPage({ params }: { params: { id: string
     .select('*')
     .eq('profile_id', profile.id)
     .single()
+
+  // Fetch Documents
+  const { data: documents } = await supabase
+    .from('documents')
+    .select('*')
+    .eq('profile_id', profile.id)
+    .eq('is_deleted', false)
 
   // Wrap the action so we can bind the profile ID
   const updateInfo = updatePersonalInfo.bind(null, profile.id)
@@ -152,7 +160,72 @@ export default async function ProfileEditPage({ params }: { params: { id: string
           <Card><CardContent><p className="text-slate-500 py-8 text-center">Employment records will go here.</p></CardContent></Card>
         </TabsContent>
         <TabsContent value="documents">
-          <Card><CardContent><p className="text-slate-500 py-8 text-center">Document uploads will go here.</p></CardContent></Card>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Upload Document</CardTitle>
+                <CardDescription>Upload Photo, Signature, CV, or NID scans.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form action={async (formData) => {
+                  'use server'
+                  const type = formData.get('type') as string
+                  await uploadDocument(profile.id, type, formData)
+                }} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="type">Document Type</Label>
+                    <Select name="type" defaultValue="Photo" required>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Photo">Photo</SelectItem>
+                        <SelectItem value="Signature">Signature</SelectItem>
+                        <SelectItem value="CV">CV (PDF)</SelectItem>
+                        <SelectItem value="NID_Front">NID Front</SelectItem>
+                        <SelectItem value="NID_Back">NID Back</SelectItem>
+                        <SelectItem value="Certificate">Certificate</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="file">File</Label>
+                    <Input id="file" name="file" type="file" required />
+                  </div>
+                  <Button type="submit" className="w-full">Upload</Button>
+                </form>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Stored Documents</CardTitle>
+                <CardDescription>Manage your uploaded files.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {documents && documents.length > 0 ? (
+                  <ul className="space-y-3">
+                    {documents.map(doc => (
+                      <li key={doc.id} className="flex items-center justify-between p-3 border rounded-md">
+                        <div className="overflow-hidden">
+                          <p className="font-medium text-sm">{doc.type}</p>
+                          <p className="text-xs text-slate-500 truncate max-w-[200px]">{doc.storage_path.split('/').pop()}</p>
+                        </div>
+                        <form action={async () => {
+                          'use server'
+                          await deleteDocument(doc.id, doc.storage_path)
+                        }}>
+                          <Button variant="destructive" size="sm" type="submit">Delete</Button>
+                        </form>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-slate-500 text-sm text-center py-4">No documents uploaded yet.</p>
+                )}
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
 
       </Tabs>
