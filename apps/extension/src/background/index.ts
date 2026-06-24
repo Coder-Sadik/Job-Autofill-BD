@@ -54,14 +54,19 @@ chrome.runtime.onMessage.addListener((message: any, _sender: any, sendResponse: 
         chrome.tabs.sendMessage(activeTab.id, {
           type: 'EXECUTE_AUTOFILL',
           profileId: activeProfileId,
-          // In a real app we'd fetch the specific profile data from Supabase or Cache here
-          // and send it down to the content script.
           profileData: {
              personal_info: { full_name: "Test User", mobile: "01700000000" } // Mock data for now
           }
         }, (response: any) => {
-          sendResponse(response)
+          if (chrome.runtime.lastError) {
+            console.error('Content script error:', chrome.runtime.lastError.message)
+            sendResponse({ success: false, error: chrome.runtime.lastError.message })
+          } else {
+            sendResponse(response || { success: true })
+          }
         })
+      } else {
+        sendResponse({ success: false, error: 'No active tab found' })
       }
     })
     return true // indicates async response
