@@ -14,25 +14,27 @@ chrome.runtime.onInstalled.addListener(() => {
 // Listen for messages from popup and content scripts
 chrome.runtime.onMessage.addListener((message: any, _sender: any, sendResponse: any) => {
   if (message.type === 'GET_STATE') {
-    sendResponse({
-      isLoggedIn: !!session,
-      userEmail: session?.user?.email,
-      profiles,
-      activeProfileId,
-      status: 'READY'
-    })
-    return false
+    setTimeout(() => {
+      sendResponse({
+        isLoggedIn: !!session,
+        userEmail: session?.user?.email,
+        profiles,
+        activeProfileId,
+        status: 'READY'
+      })
+    }, 10)
+    return true
   }
 
   if (message.type === 'SET_ACTIVE_PROFILE') {
     activeProfileId = message.profileId
-    sendResponse({ success: true })
-    return false
+    setTimeout(() => sendResponse({ success: true }), 10)
+    return true
   }
 
   if (message.type === 'GET_TEMPLATES') {
-    sendResponse({ templates })
-    return false
+    setTimeout(() => sendResponse({ templates }), 10)
+    return true
   }
 
   if (message.type === 'AUTOFILL_REQUEST') {
