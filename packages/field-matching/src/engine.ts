@@ -1,4 +1,4 @@
-import { FieldMetadata } from '@job-autofill/shared-types';
+import type { FieldMetadata } from '@job-autofill/shared-types';
 import { FIELD_DICTIONARY } from './dictionary';
 import * as stringSimilarity from 'string-similarity';
 

@@ -6,6 +6,7 @@ const SUPABASE_URL = 'https://YOUR_SUPABASE_URL.supabase.co'
 const SUPABASE_KEY = 'YOUR_SUPABASE_ANON_KEY'
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
+console.log('Supabase client initialized:', !!supabase)
 
 // Store the active session and profiles in memory/storage
 let session: any = null
@@ -18,7 +19,7 @@ chrome.runtime.onInstalled.addListener(() => {
 })
 
 // Listen for messages from popup and content scripts
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((message: any, _sender: any, sendResponse: any) => {
   if (message.type === 'GET_STATE') {
     sendResponse({
       isLoggedIn: !!session,
@@ -43,7 +44,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
   if (message.type === 'AUTOFILL_REQUEST') {
     // Forward to content script of active tab
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs: any[]) => {
       const activeTab = tabs[0]
       if (activeTab?.id) {
         chrome.tabs.sendMessage(activeTab.id, {
@@ -54,7 +55,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           profileData: {
              personal_info: { full_name: "Test User", mobile: "01700000000" } // Mock data for now
           }
-        }, (response) => {
+        }, (response: any) => {
           sendResponse(response)
         })
       }
@@ -71,7 +72,7 @@ async function syncData() {
 
 // Alarm for periodic sync
 chrome.alarms.create('syncData', { periodInMinutes: 60 })
-chrome.alarms.onAlarm.addListener((alarm) => {
+chrome.alarms.onAlarm.addListener((alarm: any) => {
   if (alarm.name === 'syncData') {
     syncData()
   }

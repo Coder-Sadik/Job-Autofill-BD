@@ -1,16 +1,16 @@
 import { FieldMatchingEngine } from '@job-autofill/field-matching'
-import { FieldMetadata } from '@job-autofill/shared-types'
+import type { FieldMetadata } from '@job-autofill/shared-types'
 
 console.log('Job AutoFill BD: Content script injected.')
 
 // Listen for messages from the popup/background
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((message: any, _sender: any, sendResponse: any) => {
   if (message.type === 'EXECUTE_AUTOFILL') {
     const { profileData } = message
     console.log('Received autofill command for profile data:', profileData)
     
     // In MVP, we fetch site templates from background (mocked here as empty)
-    chrome.runtime.sendMessage({ type: 'GET_TEMPLATES' }, (response) => {
+    chrome.runtime.sendMessage({ type: 'GET_TEMPLATES' }, (response: any) => {
       const templates = response?.templates || []
       // Find template matching current domain if any
       const domainTemplate = templates.find((t: any) => window.location.hostname.includes(t.site))

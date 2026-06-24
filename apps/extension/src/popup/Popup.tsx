@@ -14,7 +14,7 @@ export default function Popup() {
 
   useEffect(() => {
     // Fetch initial state from background worker
-    chrome.runtime.sendMessage({ type: 'GET_STATE' }, (response) => {
+    chrome.runtime.sendMessage({ type: 'GET_STATE' }, (response: any) => {
       if (response) {
         setState(response)
       }
@@ -23,7 +23,7 @@ export default function Popup() {
 
   const handleAutofill = () => {
     setFilling(true)
-    chrome.runtime.sendMessage({ type: 'AUTOFILL_REQUEST' }, (response) => {
+    chrome.runtime.sendMessage({ type: 'AUTOFILL_REQUEST' }, (response: any) => {
       setFilling(false)
       console.log('Autofill completed:', response)
     })
