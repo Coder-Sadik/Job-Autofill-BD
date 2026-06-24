@@ -1,16 +1,5 @@
-import { createClient } from '@supabase/supabase-js'
-
-// Simple mock for now. In reality, we'd use environment variables injected via Vite.
-// Or we fetch from Chrome Storage if the user configures it.
-const SUPABASE_URL = 'https://abcdefghijklmnopqr.supabase.co'
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.dummy_key'
-
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
-  auth: {
-    persistSession: false // Critical for Manifest V3 Service Workers (no localStorage)
-  }
-})
-console.log('Supabase client initialized:', !!supabase)
+// We will mock Supabase in the MVP background worker to prevent Service Worker crashes
+// related to missing window/localStorage APIs in Manifest V3.
 
 // Store the active session and profiles in memory/storage
 let session: any = null
@@ -32,18 +21,18 @@ chrome.runtime.onMessage.addListener((message: any, _sender: any, sendResponse: 
       activeProfileId,
       status: 'READY'
     })
-    return false // synchronous response
+    return true
   }
 
   if (message.type === 'SET_ACTIVE_PROFILE') {
     activeProfileId = message.profileId
     sendResponse({ success: true })
-    return false // synchronous response
+    return true
   }
 
   if (message.type === 'GET_TEMPLATES') {
     sendResponse({ templates })
-    return false // synchronous response
+    return true
   }
 
   if (message.type === 'AUTOFILL_REQUEST') {
