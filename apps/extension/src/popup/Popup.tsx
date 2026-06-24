@@ -15,6 +15,10 @@ export default function Popup() {
   useEffect(() => {
     // Fetch initial state from background worker
     chrome.runtime.sendMessage({ type: 'GET_STATE' }, (response: any) => {
+      if (chrome.runtime.lastError) {
+        console.error('Background not ready:', chrome.runtime.lastError.message)
+        return
+      }
       if (response) {
         setState(response)
       }
@@ -25,7 +29,16 @@ export default function Popup() {
     setFilling(true)
     chrome.runtime.sendMessage({ type: 'AUTOFILL_REQUEST' }, (response: any) => {
       setFilling(false)
-      console.log('Autofill completed:', response)
+      if (chrome.runtime.lastError) {
+        console.error('Autofill failed:', chrome.runtime.lastError.message)
+        alert('Could not connect to the page. Please refresh the page and try again.')
+        return
+      }
+      if (!response?.success) {
+        alert(response?.error || 'Failed to autofill.')
+      } else {
+        console.log('Autofill completed:', response)
+      }
     })
   }
 

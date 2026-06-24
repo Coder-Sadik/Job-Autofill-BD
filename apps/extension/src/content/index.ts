@@ -11,6 +11,9 @@ chrome.runtime.onMessage.addListener((message: any, _sender: any, sendResponse: 
     
     // In MVP, we fetch site templates from background (mocked here as empty)
     chrome.runtime.sendMessage({ type: 'GET_TEMPLATES' }, (response: any) => {
+      if (chrome.runtime.lastError) {
+        console.error('Failed to fetch templates:', chrome.runtime.lastError.message)
+      }
       const templates = response?.templates || []
       // Find template matching current domain if any
       const domainTemplate = templates.find((t: any) => window.location.hostname.includes(t.site))
