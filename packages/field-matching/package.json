@@ -1,0 +1,14 @@
+{
+  "name": "@job-autofill/field-matching",
+  "version": "0.1.0",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "dependencies": {
+    "@job-autofill/shared-types": "workspace:*",
+    "string-similarity": "^4.0.4"
+  },
+  "devDependencies": {
+    "@types/string-similarity": "^4.0.2",
+    "typescript": "^5.4.5"
+  }
+}
