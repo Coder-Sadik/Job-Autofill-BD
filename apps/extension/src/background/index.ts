@@ -21,18 +21,18 @@ chrome.runtime.onMessage.addListener((message: any, _sender: any, sendResponse: 
       activeProfileId,
       status: 'READY'
     })
-    return true
+    return false
   }
 
   if (message.type === 'SET_ACTIVE_PROFILE') {
     activeProfileId = message.profileId
     sendResponse({ success: true })
-    return true
+    return false
   }
 
   if (message.type === 'GET_TEMPLATES') {
     sendResponse({ templates })
-    return true
+    return false
   }
 
   if (message.type === 'AUTOFILL_REQUEST') {
